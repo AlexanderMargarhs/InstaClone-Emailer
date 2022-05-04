@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 const gmailEmail = functions.config().gmail.email;
 const gmailPassword = functions.config().gmail.password;
 
-const mailTransport = nodemailer.createTransport()({
+const mailTransport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: gmailEmail,
@@ -14,7 +14,7 @@ const mailTransport = nodemailer.createTransport()({
     },
 });
 
-const APP_NAME = 'Instagram Clone'
+const APP_NAME = 'Instagram Clone';
 
 exports.sendWelcomeEmail = functions.auth.user().onCreate((user) => {
     const email = user.email;
@@ -33,8 +33,7 @@ async function sendWelcomeEmail(email, displayName) {
     mailOptions.text = `Hey ${displayName || ''}! Welcome to ${APP_NAME}, we hope you like the app!`;
 
     await mailTransport.sendMail(mailOptions);
-
     console.log('New email sent to :', email);
 
-    return;
+    return null;
 }
