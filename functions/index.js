@@ -1,9 +1,40 @@
-const functions = require("firebase-functions");
+'use strict'
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+const functions = require('firebase-functions');
+const nodemailer = require('nodemailer');
+
+const gmailEmail = functions.config().gmail.email;
+const gmailPassword = functions.config().gmail.password;
+
+const mailTransport = nodemailer.createTransport()({
+    service: 'gmail',
+    auth: {
+        user: gmailEmail,
+        pass: gmailPassword
+    },
+});
+
+const APP_NAME = 'Instagram Clone'
+
+exports.sendWelcomeEmail = functions.auth.user().onCreate((user) => {
+    const email = user.email;
+    const displayName = user.displayName;
+
+    return sendWelcomeEmail(email, displayName);
+});
+
+async function sendWelcomeEmail(email, displayName) {
+    const mailOptions = {
+        from: `${APP_NAME} <noreply@firebase.com`,
+        to: email,
+    };
+
+    mailOptions.subject = `Welcome to ${APP_NAME}`;
+    mailOptions.text = `Hey ${displayName || ''}! Welcome to ${APP_NAME}, we hope you like the app!`;
+
+    await mailTransport.sendMail(mailOptions);
+
+    console.log('New email sent to :', email);
+
+    return;
+}
